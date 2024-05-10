@@ -139,7 +139,8 @@ function hasJob(jobs)
 end
 
 function openBossMenu(job)
-    TriggerEvent("qb-bossmenu:client:OpenMenu")
+    -- TriggerEvent("qb-bossmenu:client:OpenMenu")
+    exports.qbx_management:OpenBossMenu('job')
 end
 
 function healStatus()

@@ -61,6 +61,8 @@ function stopPlayerDeath()
     -- LocalPlayer.state:set("injuries", {}, true)
     LocalPlayer.state:set("dead", false, true)
     player.distressCallTime = nil
+    TriggerEvent('qbx_medical:client:playerRevived') --murai
+
 
     playerSpawned()
     healPlayer()
