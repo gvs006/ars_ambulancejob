@@ -290,9 +290,11 @@ end
 function Config.giveVehicleKeys(vehicle, plate)
 	-- exaple usage
 	-- exports['youscript']:name(vehicle, plate)
+	exports.mri_Qcarkeys:GiveKeyItem(plate, vehicle)
 end
 
 function Config.removeVehicleKeys(vehicle, plate)
 	-- exaple usage
 	-- exports['youscript']:name(vehicle, plate)
+	exports.mri_Qcarkeys:RemoveKeyItem(plate, vehicle)
 end
