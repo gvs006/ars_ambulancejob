@@ -50,6 +50,7 @@ local function openParamedicMenu(ped, hospital)
                         TaskPlayAnim(playerPed, dict, "body_search", 2.0, 2.0, -1, 1, 0, false, false, false)
 
                         SetEntityCoords(ped, bed.spawnPoint)
+                        SetEntityHeading(ped, bed.spawnPoint.w)
                         TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", -1, true)
 
                         lib.progressBar({ duration = 15000, label = locale("getting_treated"), useWhileDead = false, canCancel = true, disable = { car = true, move = true }, })
