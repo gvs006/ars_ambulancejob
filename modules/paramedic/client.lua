@@ -1,14 +1,15 @@
-local DoScreenFadeOut    = DoScreenFadeOut
-local DoScreenFadeIn     = DoScreenFadeIn
-local GetEntityCoords    = GetEntityCoords
-local GetEntityMaxHealth = GetEntityMaxHealth
-local IsScreenFadedOut   = IsScreenFadedOut
-local SetEntityCoords    = SetEntityCoords
-local SetEntityHeading   = SetEntityHeading
-local SetEntityHealth    = SetEntityHealth
-local TaskPlayAnim       = TaskPlayAnim
-local Wait               = Wait
+local DoScreenFadeOut         = DoScreenFadeOut
+local DoScreenFadeIn          = DoScreenFadeIn
+local GetEntityCoords         = GetEntityCoords
+local GetEntityMaxHealth      = GetEntityMaxHealth
+local IsScreenFadedOut        = IsScreenFadedOut
+local SetEntityCoords         = SetEntityCoords
+local SetEntityHeading        = SetEntityHeading
+local SetEntityHealth         = SetEntityHealth
+local TaskPlayAnim            = TaskPlayAnim
+local Wait                    = Wait
 
+local paramedicTreatmentPrice = lib.load("config").paramedicTreatmentPrice
 
 local function openParamedicMenu(ped, hospital)
     lib.registerContext({
@@ -18,63 +19,61 @@ local function openParamedicMenu(ped, hospital)
             {
                 title = locale("get_treated_paramedic"),
                 onSelect = function()
-                    local money = exports.ox_inventory:Search("count", "money")
+                    local hasMoney = Framework.hasItem("money", paramedicTreatmentPrice)
+                    if not hasMoney then return utils.showNotification(locale("not_enough_money")) end
 
-                    if money >= Config.ParamedicTreatmentPrice then
-                        utils.addRemoveItem("remove", "money", Config.ParamedicTreatmentPrice)
 
-                        local dict = lib.requestAnimDict("anim@gangops@morgue@table@")
-                        local playerPed = cache.ped or PlayerPedId()
-                        local previousCoords = cache.coords or GetEntityCoords(playerPed)
-                        local bed = nil
+                    utils.addRemoveItem("remove", "money", paramedicTreatmentPrice)
 
-                        DoScreenFadeOut(500)
-                        while not IsScreenFadedOut() do Wait(1) end
+                    local dict = lib.requestAnimDict("anim@gangops@morgue@table@")
+                    local playerPed = cache.ped or PlayerPedId()
+                    local previousCoords = cache.coords or GetEntityCoords(playerPed)
+                    local bed = nil
 
-                        Wait(1000)
-                        DoScreenFadeIn(300)
+                    DoScreenFadeOut(500)
+                    while not IsScreenFadedOut() do Wait(1) end
 
-                        for i = 1, #hospital.respawn do
-                            local _bed = hospital.respawn[i]
-                            local isBedOccupied = utils.isBedOccupied(_bed.bedPoint)
-                            if not isBedOccupied then
-                                bed = _bed
-                                break
-                            end
+                    Wait(1000)
+                    DoScreenFadeIn(300)
+
+                    for i = 1, #hospital.respawn do
+                        local _bed = hospital.respawn[i]
+                        local isBedOccupied = utils.isBedOccupied(_bed.bedPoint)
+                        if not isBedOccupied then
+                            bed = _bed
+                            break
                         end
-
-                        if not bed then bed = hospital.respawn[1] end
-
-                        SetEntityCoords(playerPed, bed.bedPoint)
-                        SetEntityHeading(playerPed, bed.bedPoint.w)
-                        TaskPlayAnim(playerPed, dict, "body_search", 2.0, 2.0, -1, 1, 0, false, false, false)
-
-                        SetEntityCoords(ped, bed.spawnPoint)
-                        SetEntityHeading(ped, bed.spawnPoint.w)
-                        TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", -1, true)
-
-                        lib.progressBar({ duration = 15000, label = locale("getting_treated"), useWhileDead = false, canCancel = true, disable = { car = true, move = true }, })
-
-                        SetEntityHealth(playerPed, GetEntityMaxHealth(playerPed))
-                        player.injuries = {}
-
-                        SetEntityCoords(ped, hospital.paramedic.pos.xyz)
-                        SetEntityHeading(ped, hospital.paramedic.pos.w)
-
-                        DoScreenFadeOut(500)
-                        while not IsScreenFadedOut() do Wait(1) end
-
-                        SetEntityCoords(playerPed, previousCoords)
-
-                        Wait(1000)
-                        DoScreenFadeIn(300)
-
-                        utils.showNotification(locale("treated_by_paramedic"))
-                        ClearPedTasks(ped)
-                        ClearAreaOfObjects(hospital.paramedic.pos.xyz, 2.0, 0)
-                    else
-                        utils.showNotification(locale("not_enough_money"))
                     end
+
+                    if not bed then bed = hospital.respawn[1] end
+
+                    SetEntityCoords(playerPed, bed.bedPoint)
+                    SetEntityHeading(playerPed, bed.bedPoint.w)
+                    TaskPlayAnim(playerPed, dict, "body_search", 2.0, 2.0, -1, 1, 0, false, false, false)
+
+                    SetEntityCoords(ped, bed.spawnPoint)
+                    SetEntityHeading(ped, bed.spawnPoint.w)
+                    TaskStartScenarioInPlace(ped, "WORLD_HUMAN_CLIPBOARD", -1, true)
+
+                    lib.progressBar({ duration = 15000, label = locale("getting_treated"), useWhileDead = false, canCancel = true, disable = { car = true, move = true }, })
+
+                    SetEntityHealth(playerPed, GetEntityMaxHealth(playerPed))
+                    player.injuries = {}
+
+                    SetEntityCoords(ped, hospital.paramedic.pos.xyz)
+                    SetEntityHeading(ped, hospital.paramedic.pos.w)
+
+                    DoScreenFadeOut(500)
+                    while not IsScreenFadedOut() do Wait(1) end
+
+                    SetEntityCoords(playerPed, previousCoords)
+
+                    Wait(1000)
+                    DoScreenFadeIn(300)
+
+                    utils.showNotification(locale("treated_by_paramedic"))
+                    ClearPedTasks(ped)
+                    ClearAreaOfObjects(hospital.paramedic.pos.xyz, 2.0, 0)
                 end,
             }
         }
@@ -118,21 +117,24 @@ local function createAmbulanceDriver(vehicle)
     return ped
 end
 
+local hospitals = lib.load("data.hospitals")
+local allowAlwaysTreatment = lib.load("config").allowAlways
+
 function initParamedic()
-    for index, hospital in pairs(Config.Hospitals) do
+    for index, hospital in pairs(hospitals) do
         local ped = utils.createPed(hospital.paramedic.model, hospital.paramedic.pos)
 
         FreezeEntityPosition(ped, true)
         SetEntityInvincible(ped, true)
         SetBlockingOfNonTemporaryEvents(ped, true)
 
-        addLocalEntity(ped, {
+        Target.addLocalEntity(ped, {
             {
                 label = locale('paramedic_interact_label'),
                 icon = 'fa-solid fa-ambulance',
                 groups = false,
                 fn = function()
-                    if not Config.AllowAlways then
+                    if not allowAlwaysTreatment then
                         local medicsOnline = lib.callback.await('ars_ambulancejob:getMedicsOniline', false)
                         if medicsOnline <= 0 then
                             openParamedicMenu(ped, hospital)
@@ -228,15 +230,15 @@ local function offlineRevive()
     DeleteEntity(ambulanceDriver)
 end
 
+local timeToWaitForCommand = lib.load("config").timeToWaitForCommand * 60000
 function startCommandTimer()
     CreateThread(function()
         local deathTime = GetGameTimer()
-        local TimeToWaitForCommand = Config.TimeToWaitForCommand * 60000
 
         while player.isDead do
             local currentTime = GetGameTimer()
             local timePassed = currentTime - deathTime
-            player.timePassedForCommand = math.ceil((TimeToWaitForCommand - timePassed) / 1000)
+            player.timePassedForCommand = math.ceil((timeToWaitForCommand - timePassed) / 1000)
             utils.debug(player.timePassedForCommand)
 
             Wait(1000)
@@ -244,7 +246,5 @@ function startCommandTimer()
     end)
 end
 
-RegisterCommand(Config.NpcReviveCommand, offlineRevive)
-
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡
+local npcReviveCommand = lib.load("config").npcReviveCommand
+RegisterCommand(npcReviveCommand, offlineRevive)

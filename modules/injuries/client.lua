@@ -1,6 +1,8 @@
 local TriggerServerEvent   = TriggerServerEvent
 local GetPedLastDamageBone = GetPedLastDamageBone
 
+local useOxInventory       = lib.load("config").useOxInventory
+local consumeItemPerUse    = lib.load("config").consumeItemPerUse
 local function checkInjuryCause(cause)
     local item = "bandage"
 
@@ -17,19 +19,21 @@ local function checkInjuryCause(cause)
 
     utils.debug(item, cause)
 
-    local count = exports.ox_inventory:Search('count', item)
-    if count < 1 then return utils.showNotification(locale("not_enough_" .. item)) end
+    local hasItem = Framework.hasItem(item)
+    if not hasItem then return utils.showNotification(locale("not_enough_" .. item)) end
 
-    local itemDurability = utils.getItem(item)?.metadata?.durability
+    if useOxInventory then
+        local itemDurability = utils.getItem(item)?.metadata?.durability
 
-    if itemDurability then
-        if itemDurability < Config.ConsumeItemPerUse then
-            utils.showNotification(locale("no_durability"))
-            return false
+        if itemDurability then
+            if itemDurability < consumeItemPerUse then
+                utils.showNotification(locale("no_durability"))
+                return false
+            end
         end
     end
 
-    utils.useItem(item, Config.ConsumeItemPerUse)
+    utils.useItem(item, consumeItemPerUse)
 
     return true
 end
@@ -138,16 +142,18 @@ function treatInjury(bone)
     SetEntityHealth(cache.ped, newHealth)
 end
 
+local bodyParts = lib.load("data.body_parts")
+local weapons = lib.load("data.weapons")
 function updateInjuries(victim, weapon)
     local found, lastDamagedBone = GetPedLastDamageBone(victim)
 
-    local damagedBone = Config.BodyParts[tostring(lastDamagedBone)]
+    local damagedBone = bodyParts[tostring(lastDamagedBone)]
 
     utils.debug("Damaged bone ", lastDamagedBone, damagedBone.label)
 
     if damagedBone then
         if not player.injuries[damagedBone.id] then
-            player.injuries[damagedBone.id] = { bone = damagedBone.id, label = damagedBone.label, desc = damagedBone.levels["default"], value = player.isDead and 100 or 10, cause = WEAPONS[weapon] and WEAPONS[weapon][2] or "not found" }
+            player.injuries[damagedBone.id] = { bone = damagedBone.id, label = damagedBone.label, desc = damagedBone.levels["default"], value = player.isDead and 100 or 10, cause = weapons[weapon] and weapons[weapon][2] or "not found" }
         else
             local newVal = math.min(player.injuries[damagedBone.id].value + 10, 100)
             player.injuries[damagedBone.id].value = newVal
@@ -157,5 +163,3 @@ function updateInjuries(victim, weapon)
         LocalPlayer.state:set("injuries", player.injuries, true)
     end
 end
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡
