@@ -28,12 +28,12 @@ local Wait                            = Wait
 local usingStretcher = false
 local currentStretcher = nil
 local patientOnStretcher = nil
-
+local emsJobs = lib.load("config").emsJobs
 local function isEmsVehicle(vehicle)
     local vehicleModel = GetEntityModel(vehicle)
     local vehicleClass = GetVehicleClass(vehicle)
 
-    for index, model in pairs(Config.EmsVehicles) do
+    for index, model in pairs(emsJobs) do
         if joaat(model) == vehicleModel or GetVehicleClassFromName(model) == vehicleClass then return true end
     end
 
@@ -108,7 +108,6 @@ function putOnStretcher(toggle, target)
     local data = {}
     data.toggle = toggle
     data.target = GetPlayerServerId(NetworkGetPlayerIndexFromPed(target))
-    print(data.target)
     TriggerServerEvent("ars_ambulancejob:putOnStretcher", data)
     patientOnStretcher = toggle and target or nil
 end
@@ -146,26 +145,27 @@ RegisterNetEvent("ars_ambulancejob:putOnStretcher", function(toggle)
 
     if toggle then
         local closestStretcher = GetClosestObjectOfType(playerCoords.x, playerCoords.y, playerCoords.z, 5.5, `prop_ld_binbag_01`, false)
-        print(closestStretcher)
         AttachEntityToEntity(playerPed, closestStretcher, 0, 0, 0.0, 1.0, 195.0, 0.0, 180.0, 0.0, false, false, false, false, 2)
     else
         DetachEntity(playerPed)
         ClearPedTasks(playerPed)
     end
 end)
+local ambulanceStretchers = lib.load("config").ambulanceStretchers
+
 local function vehicleInteractions()
     local options = {
         {
             name = 'ars_ambulancejob_take_stretcher',
             icon = 'fa-solid fa-car-side',
             label = locale('take_stretcher'),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             cn = function(entity, distance, coords, name)
-                return isEmsVehicle(entity) and not usingStretcher
+                return isEmsVehicle(entity) and not usingStretcher and not player.isDead
             end,
             fn = function(data)
                 local vehicle = type(data) == "number" and data or data.entity
-                if not Entity(vehicle).state.stretcher then Entity(vehicle).state.stretcher = Config.AmbulanceStretchers end
+                if not Entity(vehicle).state.stretcher then Entity(vehicle).state.stretcher = ambulanceStretchers end
                 if Entity(vehicle).state.stretcher < 1 then return utils.showNotification(locale("no_stretcher_found")) end
 
                 toggleStretcher(true)
@@ -177,13 +177,13 @@ local function vehicleInteractions()
             name = 'ars_ambulancejob_put_stretcher',
             icon = 'fa-solid fa-car-side',
             label = locale('put_stretcher'),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             cn = function(entity, distance, coords, name)
-                return isEmsVehicle(entity) and usingStretcher and not patientOnStretcher
+                return isEmsVehicle(entity) and usingStretcher and not patientOnStretcher and not player.isDead
             end,
             fn = function(data)
                 local vehicle = type(data) == "number" and data or data.entity
-                if Entity(vehicle).state.stretcher >= Config.AmbulanceStretchers then return utils.showNotification(locale("stretcher_limit_reached")) end
+                if Entity(vehicle).state.stretcher >= ambulanceStretchers then return utils.showNotification(locale("stretcher_limit_reached")) end
 
                 Entity(vehicle).state.stretcher += 1
 
@@ -194,9 +194,9 @@ local function vehicleInteractions()
             name = 'ars_ambulancejob_put_patient_in_vehicle',
             icon = 'fa-solid fa-car-side',
             label = locale('put_patient_in_vehicle'),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             cn = function(entity, distance, coords, name)
-                return isEmsVehicle(entity) and usingStretcher and patientOnStretcher
+                return isEmsVehicle(entity) and usingStretcher and patientOnStretcher and not player.isDead
             end,
             fn = function(data)
                 local dataToSend = {}
@@ -212,9 +212,9 @@ local function vehicleInteractions()
             name = 'ars_ambulancejob_take_patient_from_vehicle',
             icon = 'fa-solid fa-car-side',
             label = locale('take_patient_from_vehicle'),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             cn = function(entity, distance, coords, name)
-                return isEmsVehicle(entity) and Entity(entity).state?.patient
+                return isEmsVehicle(entity) and Entity(entity).state?.patient and not player.isDead
             end,
             fn = function(data)
                 local dataToSend = {}
@@ -230,19 +230,19 @@ local function vehicleInteractions()
 
     }
 
-    addGlobalVehicle(options)
+    Target.addGlobalVehicle(options)
 end
 
 local function stretcherInteraction()
-    addModel({ `prop_ld_binbag_01` }, {
+    Target.addModel({ `prop_ld_binbag_01` }, {
         {
             name = 'ars_ambulancejob_stretcher_model',
             label = locale('take_stretcher'),
             icon = 'fa-solid fa-bed',
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             distance = 3,
             cn = function()
-                return not usingStretcher
+                return not usingStretcher and not player.isDead
             end,
             fn = function(data)
                 useStretcher(type(data) == "number" and data or data.entity)
@@ -252,10 +252,10 @@ local function stretcherInteraction()
             name = 'ars_ambulancejob_remove_from_stretcher',
             icon = 'fa-solid fa-car-side',
             label = locale('remove_from_stretcher'),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             cn = function(entity, distance, coords, name)
                 local playerId, playerPed, playerCoords = lib.getClosestPlayer(GetEntityCoords(entity), 2.0, false)
-                return GetEntityAttachedTo(playerPed) == entity
+                return GetEntityAttachedTo(playerPed) == entity and not player.isDead
             end,
             fn = function(data)
                 local playerId, playerPed, playerCoords = lib.getClosestPlayer(GetEntityCoords(cache.ped), 2.0, false)
@@ -269,5 +269,3 @@ end
 
 vehicleInteractions()
 stretcherInteraction()
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

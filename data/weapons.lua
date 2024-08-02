@@ -1,4 +1,4 @@
-WEAPONS = {
+return {
     [`WEAPON_UNARMED`] = { locale("been_beaten"), "beaten" },
     [`WEAPON_KNIFE`] = { locale("been_stabbed"), "stabbed" },
     [`WEAPON_NIGHTSTICK`] = { locale("been_hit", locale("nightstick")), "beaten" },
@@ -41,5 +41,3 @@ WEAPONS = {
 
     [-842959696] = { locale("been_fallen_to_death"), "beaten" },
 }
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

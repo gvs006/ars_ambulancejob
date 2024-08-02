@@ -11,17 +11,17 @@ local NetworkFadeOutEntity     = NetworkFadeOutEntity
 local DeleteVehicle            = DeleteVehicle
 local DrawMarker               = DrawMarker
 local Wait                     = Wait
-local IsEntityDead             = IsEntityDead
-local vector3                  = vector3
 local TaskVehicleDriveWander   = TaskVehicleDriveWander
 local DeletePed                = DeletePed
 
 local depositPositions         = {}
+local giveVehicleKeys          = lib.load("config").giveVehicleKeys
+local removeVehicleKeys        = lib.load("config").removeVehicleKeys
 
 local function openCarList(garage)
     local vehicles = {}
     local playerPed = cache.ped
-    local jobGrade = getPlayerJobGrade()
+    local jobGrade = Framework.getPlayerJobGrade()
 
     for k, v in pairs(garage.vehicles) do
         if jobGrade >= v.min_grade then
@@ -42,7 +42,7 @@ local function openCarList(garage)
                     lib.setVehicleProperties(vehicle, v.modifications)
 
                     local plate = lib.getVehicleProperties(vehicle).plate
-                    Config.giveVehicleKeys(vehicle, plate)
+                    giveVehicleKeys(vehicle, plate)
 
                     TaskEnterVehicle(playerPed, vehicle, -1, -1, 1.0, 1, 0)
                 end
@@ -58,9 +58,10 @@ local function openCarList(garage)
     lib.showContext('vehicleList')
 end
 
+local usePedToDepositVehicle = lib.load("config").usePedToDepositVehicle
 
 local function depositVehicle(data)
-    if hasJob(data.jobs) then
+    if Framework.hasJob(data.jobs) then
         local playerPed = cache.ped
         local playerVehicle = cache.vehicle
         if playerVehicle and GetPedInVehicleSeat(playerVehicle, -1) ~= 0 then
@@ -75,11 +76,11 @@ local function depositVehicle(data)
                 local vehicleToDelete = playerVehicle
 
                 local plate = lib.getVehicleProperties(playerVehicle).plate
-                Config.removeVehicleKeys(playerVehicle, plate)
+                removeVehicleKeys(playerVehicle, plate)
 
                 lib.hideTextUI()
 
-                if Config.UsePedToDepositVehicle then
+                if usePedToDepositVehicle then
                     local emsDriver = utils.createPed(data.model, data.driverSpawnCoords)
                     FreezeEntityPosition(emsDriver, false)
 
@@ -120,7 +121,7 @@ function initGarage(data, jobs)
         SetEntityInvincible(ped, true)
         SetBlockingOfNonTemporaryEvents(ped, true)
 
-        addLocalEntity(ped, {
+        Target.addLocalEntity(ped, {
             {
                 label = locale('garage_interact_label'),
                 icon = 'fa-solid fa-car',
@@ -135,7 +136,7 @@ function initGarage(data, jobs)
             coords = garage.deposit,
             distance = 5,
             onEnter = function(self)
-                if cache.vehicle and hasJob(jobs) then
+                if cache.vehicle and Framework.hasJob(jobs) then
                     lib.showTextUI(locale('deposit_vehicle'))
                 end
             end,
@@ -153,4 +154,10 @@ function initGarage(data, jobs)
     end
 end
 
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡
+function unloadGarage()
+    for _, point in pairs(depositPositions) do
+        point:remove()
+        utils.debug("Point", _, "removed")
+    end
+    depositPositions = {}
+end

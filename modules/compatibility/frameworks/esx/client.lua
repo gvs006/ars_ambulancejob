@@ -2,6 +2,9 @@ local ESX = GetResourceState('es_extended'):find('start') and exports['es_extend
 
 if not ESX then return end
 
+Framework = {}
+local useOxInventory = lib.load("config").useOxInventory
+local ox_inventory = useOxInventory and exports.ox_inventory
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(playerData)
@@ -16,7 +19,8 @@ AddEventHandler('esx:onPlayerLogout', function()
     player.isDead = false
 end)
 
-function toggleClothes(toggle, clothes)
+local clothingScript = lib.load("config").clothingScript
+function Framework.toggleClothes(toggle, clothes)
     if toggle then
         utils.debug("Putting on clothes")
 
@@ -26,18 +30,56 @@ function toggleClothes(toggle, clothes)
 
         utils.debug("Job Grade " .. jobGrade)
 
-        if Config.ClothingScript and Config.ClothingScript ~= 'core' then
-            local model = exports[Config.ClothingScript]:getPedModel(playerPed)
+        if clothingScript and clothingScript ~= 'core' then
+            local model = exports[clothingScript]:getPedModel(playerPed)
 
             if model == 'mp_m_freemode_01' then
                 data = clothes.male[jobGrade] or clothes.male[1]
             elseif model == 'mp_f_freemode_01' then
                 data = clothes.female[jobGrade] or clothes.female[1]
             end
+            local outfits = {}
+            local selected = false
 
-            utils.debug("Using " .. Config.ClothingScript)
+            for outfitName, outfit in pairs(data) do
+                outfits[#outfits + 1] = {
+                    title = outfitName,
+                    icon = 'fa-solid fa-shirt',
+                    onSelect = function()
+                        data = outfit
+                        selected = true
+                    end,
+                }
+            end
 
-            exports[Config.ClothingScript]:setPedProps(playerPed, {
+            lib.registerContext({
+                id = 'police_outfits',
+                title = locale("police_outfits_title"),
+                options = outfits
+            })
+            lib.showContext('police_outfits')
+
+            while not selected do Wait(500) end
+            utils.debug("Using " .. clothingScript)
+
+            lib.progressBar({
+                duration = 3000,
+                label = locale("clothesmenu_job_use"),
+                useWhileDead = false,
+                allowCuffed = false,
+                canCancel = false,
+                disable = {
+                    car = true,
+                    move = true,
+                    combat = true,
+                },
+                anim = {
+                    dict = 'clothingshirt',
+                    clip = 'try_shirt_positive_d'
+                },
+            })
+
+            exports[clothingScript]:setPedProps(playerPed, {
                 {
                     component_id = 0,
                     texture = data['helmet_2'],
@@ -45,7 +87,7 @@ function toggleClothes(toggle, clothes)
                 },
             })
 
-            exports[Config.ClothingScript]:setPedComponents(playerPed, {
+            exports[clothingScript]:setPedComponents(playerPed, {
                 {
                     component_id = 1,
                     texture = data['mask_2'],
@@ -97,16 +139,57 @@ function toggleClothes(toggle, clothes)
                     drawable = data['bag']
                 },
             })
-        elseif Config.ClothingScript == 'core' then
-            utils.debug("Using " .. Config.ClothingScript)
+        elseif clothingScript == 'core' then
+            utils.debug("Using " .. clothingScript)
             ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
                 local gender = skin.sex
-
                 if gender == 0 then
-                    TriggerEvent('skinchanger:loadClothes', skin, clothes.male[jobGrade] or clothes.male[1])
+                    data = clothes.male[jobGrade] or clothes.male[1]
                 else
-                    TriggerEvent('skinchanger:loadClothes', skin, clothes.female[jobGrade] or clothes.female[1])
+                    data = clothes.female[jobGrade] or clothes.female[1]
                 end
+
+                local outfits = {}
+                local selected = false
+
+                for outfitName, outfit in pairs(data) do
+                    outfits[#outfits + 1] = {
+                        title = outfitName,
+                        icon = 'fa-solid fa-shirt',
+                        onSelect = function()
+                            data = outfit
+                            selected = true
+                        end,
+                    }
+                end
+
+                lib.registerContext({
+                    id = 'police_outfits',
+                    title = locale("police_outfits_title"),
+                    options = outfits
+                })
+                lib.showContext('police_outfits')
+
+                while not selected do Wait(500) end
+
+                lib.progressBar({
+                    duration = 3000,
+                    label = locale("clothesmenu_job_use"),
+                    useWhileDead = false,
+                    allowCuffed = false,
+                    canCancel = false,
+                    disable = {
+                        car = true,
+                        move = true,
+                        combat = true,
+                    },
+                    anim = {
+                        dict = 'clothingshirt',
+                        clip = 'try_shirt_positive_d'
+                    },
+                })
+
+                TriggerEvent('skinchanger:loadClothes', skin, data)
             end)
         end
     else
@@ -119,20 +202,20 @@ function toggleClothes(toggle, clothes)
     end
 end
 
-function getPlayerJobGrade()
+function Framework.getPlayerJobGrade()
     local playerData = ESX.GetPlayerData()
     local jobGrade = playerData.job.grade
 
     return jobGrade
 end
 
-function playerJob()
+function Framework.playerJob()
     local playerData = ESX.GetPlayerData()
 
     return playerData.job.name
 end
 
-function hasJob(jobs)
+function Framework.hasJob(jobs)
     local playerData = ESX.GetPlayerData()
 
     if type(jobs) == "table" then
@@ -146,20 +229,34 @@ function hasJob(jobs)
     return false
 end
 
-function openBossMenu(job)
+function Framework.openBossMenu(job)
     TriggerEvent('esx_society:openBossMenu', job, function(data, menu) end, { wash = false })
 end
 
-function healStatus()
+function Framework.healStatus()
     TriggerEvent('esx_status:add', "hunger", 1000000)
     TriggerEvent('esx_status:add', "thirst", 1000000)
 end
 
-function playerSpawned()
+function Framework.playerSpawned()
     TriggerEvent('esx_basicneeds:resetStatus')
     TriggerServerEvent('esx:onPlayerSpawn')
     TriggerEvent('esx:onPlayerSpawn')
     TriggerEvent('playerSpawned')
 end
 
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡
+function Framework.hasItem(item, _quantity)
+    local quantity = _quantity or 1
+    if ox_inventory then
+        return ox_inventory:Search('count', item) >= quantity
+    end
+
+    local playerData = ESX.GetPlayerData()
+    local playerInventory = playerData.inventory
+
+    for _, v in pairs(playerInventory) do
+        if v.name == item and v.count >= quantity then return true end
+    end
+
+    return false
+end

@@ -1,4 +1,5 @@
-if not Config.ClothingScript then return end
+local useInternalClothing = lib.load("config").clothingScript
+if not useInternalClothing then return end
 
 local FreezeEntityPosition            = FreezeEntityPosition
 local SetEntityInvincible             = SetEntityInvincible
@@ -30,7 +31,7 @@ local function openClothingMenu(clothes)
                                 clip = 'try_shirt_positive_d'
                             },
                         }) then
-                        toggleClothes(false, clothes)
+                        Framework.toggleClothes(false, clothes)
                     end
                 end,
             },
@@ -39,24 +40,7 @@ local function openClothingMenu(clothes)
                 description = locale('clothesmenu_job_description'),
                 icon = "fa-solid fa-user-doctor",
                 onSelect = function()
-                    if lib.progressBar({
-                            duration = 3000,
-                            label = locale("clothesmenu_job_use"),
-                            useWhileDead = false,
-                            allowCuffed = false,
-                            canCancel = false,
-                            disable = {
-                                car = true,
-                                move = true,
-                                combat = true,
-                            },
-                            anim = {
-                                dict = 'clothingshirt',
-                                clip = 'try_shirt_positive_d'
-                            },
-                        }) then
-                        toggleClothes(true, clothes)
-                    end
+                    Framework.toggleClothes(true, clothes)
                 end,
             },
         }
@@ -72,7 +56,7 @@ function initClothes(data, jobs)
     SetEntityInvincible(ped, true)
     SetBlockingOfNonTemporaryEvents(ped, true)
 
-    addLocalEntity(ped, {
+    Target.addLocalEntity(ped, {
         {
             label = locale('clothing_interact_label'),
             icon = 'fa-solid fa-road',
@@ -83,5 +67,3 @@ function initClothes(data, jobs)
         }
     })
 end
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

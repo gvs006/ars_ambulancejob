@@ -21,6 +21,9 @@ local SetEntityInvincible          = SetEntityInvincible
 local TriggerEvent                 = TriggerEvent
 local SetCurrentPedWeapon          = SetCurrentPedWeapon
 
+local weapons                      = lib.load("data.weapons")
+local useOxInventory               = lib.load("config").useOxInventory
+local consumeItemPerUse            = lib.load("config").consumeItemPerUse
 
 local function checkPatient(target)
     local targetServerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(target))
@@ -69,14 +72,15 @@ local function checkPatient(target)
             icon = 'medkit',
             iconColor = "#5BC0DE",
             onSelect = function()
-                local count = exports.ox_inventory:Search('count', "defibrillator")
-                if count < 1 then return utils.showNotification(locale("not_enough_defibrillator")) end
+                local hasItem = Framework.hasItem("defibrillator")
+                if not hasItem then return utils.showNotification(locale("not_enough_defibrillator")) end
 
+                if useOxInventory then
+                    local itemDurability = utils.getItem("defibrillator")?.metadata?.durability
 
-                local itemDurability = utils.getItem("defibrillator")?.metadata?.durability
-
-                if itemDurability then
-                    if itemDurability < Config.ConsumeItemPerUse then return utils.showNotification(locale("no_durability")) end
+                    if itemDurability then
+                        if itemDurability < consumeItemPerUse then return utils.showNotification(locale("no_durability")) end
+                    end
                 end
 
                 local playerPed = cache.ped or PlayerPedId()
@@ -96,7 +100,7 @@ local function checkPatient(target)
         }
 
         options[#options + 1] = {
-            title = WEAPONS[data.killedBy] and WEAPONS[data.killedBy][1] or locale("patient_not_found"),
+            title = weapons[data.killedBy] and weapons[data.killedBy][1] or locale("patient_not_found"),
             readOnly = true,
             icon = 'skull',
         }
@@ -110,12 +114,13 @@ local function checkPatient(target)
     lib.showContext('check_patient')
 end
 
-
+local timeForNewCall = lib.load("config").waitTimeForNewCall
+local sendDistressCall = lib.load("config").sendDistressCall
 function createDistressCall()
     if player.distressCallTime then
         local currentTime = GetGameTimer()
-        utils.debug(currentTime - player.distressCallTime, 60000 * Config.WaitTimeForNewCall)
-        if currentTime - player.distressCallTime < 60000 * Config.WaitTimeForNewCall then
+        utils.debug(currentTime - player.distressCallTime, 60000 * timeForNewCall)
+        if currentTime - player.distressCallTime < 60000 * timeForNewCall then
             return utils.showNotification(
                 locale("distress_call_in_cooldown"))
         end
@@ -129,7 +134,7 @@ function createDistressCall()
     local msg = input[1]
 
 
-    Config.sendDistressCall(msg)
+    sendDistressCall(msg)
 
     local data = {}
     local playerCoords = cache.coords or GetEntityCoords(cache.ped)
@@ -147,11 +152,15 @@ function createDistressCall()
     player.distressCallTime = GetGameTimer()
 end
 
+local helpCommandName = lib.load("config").helpCommand
+
 exports("createDistressCall", createDistressCall)
-RegisterCommand(Config.HelpCommand, createDistressCall)
+RegisterCommand(helpCommandName, createDistressCall)
+
+local emsJobs = lib.load("config").emsJobs
 
 function openDistressCalls()
-    if not hasJob(Config.EmsJobs) then return end
+    if not Framework.hasJob(emsJobs) then return end
 
     local playerPed = cache.ped or PlayerPedId()
     local playerCoords = cache.coords or GetEntityCoords(playerPed)
@@ -246,15 +255,16 @@ function openDistressCalls()
     lib.showContext('openDistressCalls')
 end
 
+RegisterNetEvent("ars_ambulancejob:openDistressCalls", openDistressCalls)
 exports("openDistressCalls", openDistressCalls)
 
 
-addGlobalPlayer({
+Target.addGlobalPlayer({
     {
         name = 'check_suspect',
         icon = 'fas fa-magnifying-glass',
         label = locale('check_patient'),
-        groups = Config.EmsJobs,
+        groups = emsJobs,
         distance = 3,
         fn = function(data)
             checkPatient(type(data) == "number" and data or data.entity)
@@ -264,13 +274,13 @@ addGlobalPlayer({
         name = 'put_on_stretcher',
         icon = 'fas fa-magnifying-glass',
         label = locale('put_on_stretcher'),
-        groups = Config.EmsJobs,
+        groups = emsJobs,
         distance = 3,
         cn = function(entity, distance, coords, name, bone)
             local _coords = GetEntityCoords(entity)
             local closestStretcher = GetClosestObjectOfType(_coords.x, _coords.y, _coords.z, 5.5, `prop_ld_binbag_01`, false)
 
-            return closestStretcher ~= 0
+            return closestStretcher ~= 0 and not player.isDead
         end,
         fn = function(data)
             putOnStretcher(true, type(data) == "number" and data or data.entity)
@@ -278,7 +288,8 @@ addGlobalPlayer({
     },
 })
 
-
+local animations = lib.load("config").animations
+local reviveReward = lib.load("config").reviveReward
 RegisterNetEvent("ars_ambulancejob:playHealAnim", function(data)
     local playerPed = cache.ped or PlayerPedId()
     local coords = GetEntityCoords(playerPed)
@@ -313,12 +324,11 @@ RegisterNetEvent("ars_ambulancejob:playHealAnim", function(data)
 
         Wait(1000)
 
-        TaskPlayAnim(playerPed, Config.DeathAnimations["revive"].dict, Config.DeathAnimations["revive"].clip, 10.0, -10.0,
-            -1, 0, 0, 0, 0, 0)
+        TaskPlayAnim(playerPed, animations["get_up"].dict, animations["get_up"].clip, 10.0, -10.0, -1, 0, 0, 0, 0, 0)
 
 
-        utils.useItem("defibrillator", Config.ConsumeItemPerUse)
-        utils.addRemoveItem("add", "money", Config.ReviveReward)
+        utils.useItem("defibrillator", consumeItemPerUse)
+        utils.addRemoveItem("add", "money", reviveReward)
     elseif data.anim == "dead" then
         utils.showNotification(locale("action_revived_notification"))
 
@@ -360,7 +370,7 @@ end)
 
 
 RegisterNetEvent("ars_ambulancejob:createDistressCall", function(name)
-    if not hasJob(Config.EmsJobs) then return end
+    if not Framework.hasJob(emsJobs) then return end
 
     lib.notify({
         title = locale("notification_new_call_title"),
@@ -381,5 +391,3 @@ RegisterNetEvent("ars_ambulancejob:createDistressCall", function(name)
     })
     PlaySound(-1, "Event_Start_Text", "GTAO_FM_Events_Soundset")
 end)
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

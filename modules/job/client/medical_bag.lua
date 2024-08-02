@@ -8,6 +8,9 @@ local DeleteEntity                     = DeleteEntity
 local ClearPedTasks                    = ClearPedTasks
 local RegisterNetEvent                 = RegisterNetEvent
 
+local medicBagProp                     = lib.load("config").medicBagProp
+local useOxInventory                   = lib.load("config").useOxInventory
+
 local function openMedicalBag()
     local playerPed = cache.ped or PlayerPedId()
 
@@ -20,7 +23,7 @@ end
 
 local function placeMedicalBag()
     lib.requestAnimDict("pickup_object")
-    lib.requestModel(Config.MedicBagProp)
+    lib.requestModel(medicBagProp)
 
     local playerPed = cache.ped or PlayerPedId()
     local coords = GetOffsetFromEntityInWorldCoords(playerPed, 0.0, 0.5, 0.0)
@@ -29,17 +32,21 @@ local function placeMedicalBag()
 
     Wait(900)
 
-    medicBag = CreateObjectNoOffset(Config.MedicBagProp, coords.x, coords.y, coords.z, true, false)
+    medicBag = CreateObjectNoOffset(medicBagProp, coords.x, coords.y, coords.z, true, false)
     PlaceObjectOnGroundProperly(medicBag)
 
     utils.addRemoveItem("remove", "medicalbag", 1)
 
-    addLocalEntity(medicBag, {
+    Target.addLocalEntity(medicBag, {
         {
             label = locale('open_medical_bag'),
             icon = 'fa-solid fa-suitcase',
             groups = false,
             fn = function()
+                if not useOxInventory then
+                    return print("ONLY AVAILABLE FOR OX INVENTORY FOR NOW")
+                end
+
                 openMedicalBag()
             end
         },
@@ -60,10 +67,10 @@ local function placeMedicalBag()
     })
 end
 
+local emsJobs = lib.load("config").emsJobs
+
 RegisterNetEvent("ars_ambulancejob:placeMedicalBag", function()
-    if not hasJob(Config.EmsJobs) then return end
+    if not Framework.hasJob(emsJobs) then return end
 
     placeMedicalBag()
 end)
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

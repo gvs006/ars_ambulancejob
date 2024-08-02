@@ -1,17 +1,22 @@
-player = {}
-distressCalls = {}
+player               = {}
+distressCalls        = {}
+local emsJobs        = lib.load("config").emsJobs
+local useOxInventory = lib.load("config").useOxInventory
+local ox_inventory   = useOxInventory and exports.ox_inventory
 
 RegisterNetEvent("ars_ambulancejob:updateDeathStatus", function(death)
+    local source = source
     local data = {}
     data.target = source
     data.status = death.isDead
     data.killedBy = death?.weapon or false
 
-    updateStatus(data)
+    Framework.updateStatus(data)
 end)
 
 RegisterNetEvent("ars_ambulancejob:revivePlayer", function(data)
-    if not hasJob(source, Config.EmsJobs) or not source or source < 1 then return end
+    local source = source
+    if not Framework.hasJob(source, emsJobs) or not source or source < 1 then return end
 
     local sourcePed = GetPlayerPed(source)
     local targetPed = GetPlayerPed(data.targetServerId)
@@ -27,7 +32,8 @@ RegisterNetEvent("ars_ambulancejob:revivePlayer", function(data)
 end)
 
 RegisterNetEvent("ars_ambulancejob:healPlayer", function(data)
-    if not hasJob(source, Config.EmsJobs) or not source or source < 1 then return end
+    local source = source
+    if not Framework.hasJob(source, emsJobs) or not source or source < 1 then return end
 
 
     local sourcePed = GetPlayerPed(source)
@@ -49,12 +55,16 @@ RegisterNetEvent("ars_ambulancejob:healPlayer", function(data)
 end)
 
 RegisterNetEvent("ars_ambulancejob:createDistressCall", function(data)
+    local source = source
     if not source or source < 1 then return end
+
+    local playerName = Framework.getPlayerName(source)
+
     distressCalls[#distressCalls + 1] = {
         msg = data.msg,
         gps = data.gps,
         location = data.location,
-        name = getPlayerName(source)
+        name = playerName
     }
 
     local players = GetPlayers()
@@ -62,8 +72,8 @@ RegisterNetEvent("ars_ambulancejob:createDistressCall", function(data)
     for i = 1, #players do
         local id = tonumber(players[i])
 
-        if hasJob(id, Config.EmsJobs) then
-            TriggerClientEvent("ars_ambulancejob:createDistressCall", id, getPlayerName(source))
+        if Framework.hasJob(id, emsJobs) then
+            TriggerClientEvent("ars_ambulancejob:createDistressCall", id, playerName)
         end
     end
 end)
@@ -78,25 +88,30 @@ RegisterNetEvent("ars_ambulancejob:callCompleted", function(call)
 end)
 
 RegisterNetEvent("ars_ambulancejob:removAddItem", function(data)
-    if data.toggle then
-        exports.ox_inventory:RemoveItem(source, data.item, data.quantity)
-    else
-        exports.ox_inventory:AddItem(source, data.item, data.quantity)
-    end
+    local source = source
+
+    local method = data.toggle and Framework.removeItem or Framework.addItem
+
+    method(source, data.item, data.quantity)
 end)
 
 RegisterNetEvent("ars_ambulancejob:useItem", function(data)
-    if not hasJob(source, Config.EmsJobs) then return end
+    if not Framework.hasJob(source, emsJobs) then return end
 
-    local item = exports.ox_inventory:GetSlotWithItem(source, data.item)
-    local slot = item.slot
+    if ox_inventory then
+        local item = ox_inventory:GetSlotWithItem(source, data.item)
+        local slot = item.slot
 
-    exports.ox_inventory:SetDurability(source, slot, item.metadata?.durability and (item.metadata?.durability - data.value) or (100 - data.value))
+        return ox_inventory:SetDurability(source, slot, item.metadata?.durability and (item.metadata?.durability - data.value) or (100 - data.value))
+    end
+
+    Framework.removeItem(data.item)
 end)
-
+local removeItemsOnRespawn = lib.load("config").removeItemsOnRespawn
 RegisterNetEvent("ars_ambulancejob:removeInventory", function()
-    if player[source].isDead and Config.RemoveItemsOnRespawn then
-        exports.ox_inventory:ClearInventory(source)
+    local source = source
+    if player[source].isDead and removeItemsOnRespawn then
+        Framework.wipeInventory(source, lib.load("config").keepItemsOnRespawn)
     end
 end)
 
@@ -106,20 +121,19 @@ RegisterNetEvent("ars_ambulancejob:putOnStretcher", function(data)
 end)
 
 RegisterNetEvent("ars_ambulancejob:togglePatientFromVehicle", function(data)
-    print(data.target)
     if not player[data.target].isDead then return end
 
     TriggerClientEvent("ars_ambulancejob:togglePatientFromVehicle", data.target, data.vehicle)
 end)
 
 lib.callback.register('ars_ambulancejob:getDeathStatus', function(source, target)
-    return player[target] and player[target] or getDeathStatus(target or source)
+    return player[target] and player[target] or Framework.getDeathStatus(target or source)
 end)
 
 lib.callback.register('ars_ambulancejob:getData', function(source, target)
     local data = {}
     data.injuries = Player(target).state.injuries or false
-    data.status = getDeathStatus(target or source) or Player(target).state.dead
+    data.status = Framework.getDeathStatus(target or source) or Player(target).state.dead
     data.killedBy = player[target]?.killedBy or false
 
     return data
@@ -133,16 +147,11 @@ lib.callback.register('ars_ambulancejob:openMedicalBag', function(playerId)
     local source = playerId
     local playerIdentifier = GetPlayerIdentifierByType(source, "license"):gsub("license:", "")
 
-    exports.ox_inventory:RegisterStash("medicalBag_" .. playerIdentifier, "Medical Bag", 10, 50 * 1000)
+    ox_inventory:RegisterStash("medicalBag_" .. playerIdentifier, "Medical Bag", 10, 50 * 1000)
 
     return "medicalBag_" .. playerIdentifier
 end)
 
-lib.callback.register('ars_ambulancejob:getItem', function(source, name)
-    local item = exports.ox_inventory:GetSlotWithItem(source, name)
-
-    return item
-end)
 
 lib.callback.register('ars_ambulancejob:getMedicsOniline', function(source)
     local count = 0
@@ -151,37 +160,49 @@ lib.callback.register('ars_ambulancejob:getMedicsOniline', function(source)
     for i = 1, #players do
         local id = tonumber(players[i])
 
-        if hasJob(id, Config.EmsJobs) then
+        if Framework.hasJob(id, emsJobs) then
             count += 1
         end
     end
     return count
 end)
 
-exports.ox_inventory:registerHook('swapItems', function(payload)
-    if string.find(payload.toInventory, "medicalBag_") then
-        if payload.fromSlot.name == Config.MedicBagItem then return false end
-    end
-end, {})
+if ox_inventory then
+    lib.callback.register('ars_ambulancejob:getItem', function(source, name)
+        local item = ox_inventory:GetSlotWithItem(source, name)
 
-AddEventHandler('onServerResourceStart', function(resourceName)
-    if resourceName == GetCurrentResourceName() then
-        for index, hospital in pairs(Config.Hospitals) do
-            local cfg = hospital
+        return item
+    end)
 
-            for id, stash in pairs(cfg.stash) do
-                exports.ox_inventory:RegisterStash(id, stash.label, stash.slots, stash.weight * 1000, cfg.stash.shared and true or nil)
-            end
+    local medicBagItem = lib.load("config").medicBagItem
+    ox_inventory:registerHook('swapItems', function(payload)
+        if string.find(payload.toInventory, "medicalBag_") then
+            if payload.fromSlot.name == medicBagItem then return false end
+        end
+    end, {})
 
-            for id, pharmacy in pairs(cfg.pharmacy) do
-                exports.ox_inventory:RegisterShop(id, {
-                    name = pharmacy.label,
-                    inventory = pharmacy.items,
-                })
+    AddEventHandler('onServerResourceStart', function(resourceName)
+        if resourceName == GetCurrentResourceName() then
+            local hospitals = lib.load("data.hospitals")
+
+            for index, hospital in pairs(hospitals) do
+                local cfg = hospital
+
+                for id, stash in pairs(cfg.stash) do
+                    ox_inventory:RegisterStash(id, stash.label, stash.slots, stash.weight * 1000, cfg.stash.shared and true or nil)
+                end
+
+                for id, pharmacy in pairs(cfg.pharmacy) do
+                    ox_inventory:RegisterShop(id, {
+                        name = pharmacy.label,
+                        inventory = pharmacy.items,
+                    })
+                end
             end
         end
-    end
-end)
+    end)
+end
+
 
 
 lib.versionCheck('Arius-Development/ars_ambulancejob')

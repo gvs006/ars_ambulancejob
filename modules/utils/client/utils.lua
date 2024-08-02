@@ -28,8 +28,10 @@ function utils.showNotification(msg, type)
     })
 end
 
+local debug = lib.load("config").debug
+
 function utils.debug(...)
-    if Config.Debug then
+    if debug then
         local args = { ... }
 
         for i = 1, #args do
@@ -90,7 +92,7 @@ function utils.getClosestHospital()
     local playerCoords = cache.coords or GetEntityCoords(playerPed)
     local minDist = 999999
 
-    for k, v in pairs(Config.Hospitals) do
+    for k, v in pairs(lib.load("data.hospitals")) do
         local hospitalCoords = v.zone.pos
         local dist = #(playerCoords - hospitalCoords)
 
@@ -159,5 +161,3 @@ function utils.drawTextFrame(data)
 end
 
 RegisterNetEvent('ars_ambulancejob:showNotification', utils.showNotification)
-
--- © 𝐴𝑟𝑖𝑢𝑠 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡

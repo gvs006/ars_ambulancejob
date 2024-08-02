@@ -1,13 +1,15 @@
-for index, hospital in pairs(Config.Hospitals) do
-    addBoxZone(hospital.bossmenu.pos, {
+local hospitals = lib.load("data.hospitals")
+local emsJobs = lib.load("config").emsJobs
+for index, hospital in pairs(hospitals) do
+    Target.addBoxZone(hospital.bossmenu.pos, {
         {
             name = "open_bossmenu" .. index,
             icon = 'fa-solid fa-road',
             label = locale("bossmenu_label"),
-            groups = Config.EmsJobs,
+            groups = emsJobs,
             fn = function(data)
-                if getPlayerJobGrade() >= hospital.bossmenu.min_grade then
-                    openBossMenu(playerJob())
+                if Framework.getPlayerJobGrade() >= hospital.bossmenu.min_grade then
+                    Framework.openBossMenu(Framework.playerJob())
                 else
                     print(locale("bossmenu_denied"))
                 end
