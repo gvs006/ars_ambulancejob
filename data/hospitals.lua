@@ -2,18 +2,21 @@ return {
     ["pillbox"] = {
         paramedic = {
             model = "s_m_m_scientist_01",
-            pos = vector4(312.0927, -596.1016, 42.2918, 338.7213),
+            pos = {
+                vec4(-439.79, -324.24, 33.91, 157.32),
+                -- vec4(-439.79, -324.24, 33.91, 157.32),
+            }
         },
         bossmenu = {
             pos = vector3(284.84, -615.6, 44.24),
             min_grade = 2
         },
         zone = {
-            pos = vec3(299.0, -585.28, 43.28),
+            pos = vec3(-438.96, -324.51, 34.91),
             size = vec3(200.0, 200.0, 200.0),
         },
         blip = {
-            enable = true,
+            enable = false,
             name = 'Pillbox Hospital',
             type = 61,
             scale = 1.0,
@@ -22,8 +25,17 @@ return {
         },
         respawn = {
             {
-                bedPoint = vector4(349.76, -583.44, 43.0, 150.04),
-                spawnPoint = vector4(348.84, -583.36, 42.32, 68.24)
+                bedPoint = vec4(-449.08, -303.31, 34.83, 20.41),
+                spawnPoint = vec4(-449.92, -303.91, 33.91, 290.58),
+                isDeadRespawn = true, -- local pra spawnar quando morre
+            },
+            {
+                bedPoint = vec4(-451.46, -284.91, 34.83, 27.47),
+                spawnPoint = vec4(-450.58, -284.28, 33.91, 124.66)
+            },
+            {
+                bedPoint = vec4(-451.46, -284.91, 34.83, 27.47),
+                spawnPoint = vec4(-450.58, -284.28, 33.91, 124.66)
             },
             -- {
             -- 	bedPoint = vector4(346.96, -590.64, 44.12, 338.0),
@@ -32,78 +44,78 @@ return {
 
         },
         stash = {
-            ['ems_stash_1'] = {
-                slots = 50,
-                weight = 50, -- kg
-                min_grade = 0,
-                label = 'Ems stash',
-                shared = true, -- false if you want to make everyone has a personal stash
-                pos = vector3(309.96, -599.2, 43.28)
-            }
+            -- ['ems_stash_1'] = {
+            --     slots = 50,
+            --     weight = 50, -- kg
+            --     min_grade = 0,
+            --     label = 'Ems stash',
+            --     shared = true, -- false if you want to make everyone has a personal stash
+            --     pos = vector3(309.96, -599.2, 43.28)
+            -- }
         },
         pharmacy = {
             ["ems_shop_1"] = {
                 job = true,
-                label = "Pharmacy",
+                label = "Farmácia",
                 grade = 0, -- works only if job true
-                pos = vector3(315.5516, -598.6013, 43.2918),
+                pos = vec3(-453.48, -308.31, 34.91),
                 blip = {
                     enable = false,
-                    name = 'Pharmacy',
+                    name = 'Farmácia',
                     type = 61,
                     scale = 0.7,
                     color = 2,
-                    pos = vector3(315.5516, -598.6013, 43.2918),
+                    pos = vec3(-453.48, -308.31, 34.91),
                 },
                 items = {
-                    { name = 'medicalbag',    label = "Medical Bag",   icon = "fas fa-briefcase-medical", price = 10 },
-                    { name = 'bandage',       label = "Bandage",       icon = "fas fa-bandage",           price = 10 },
-                    { name = 'defibrillator', label = "Defibrillator", icon = "fas fa-heartbeat",         price = 10 },
-                    { name = 'tweezers',      label = "Tweezers",      icon = "fas fa-tools",             price = 10 },
-                    { name = 'burncream',     label = "Burncream",     icon = "fas fa-fire-extinguisher", price = 10 },
-                    { name = 'suturekit',     label = "Suturekit",     icon = "fas fa-scissors",          price = 10 },
-                    { name = 'icepack',       label = "Ice Pack",      icon = "fas fa-snowflake",         price = 10 },
+                    { name = 'medicalbag',    label = "Bolsa Médica",   icon = "fas fa-briefcase-medical", price = 10 },
+                    { name = 'bandage',       label = "Bandagem",       icon = "fas fa-bandage",           price = 10 },
+                    { name = 'defibrillator', label = "Desfibrilador", icon = "fas fa-heartbeat",         price = 10 },
+                    { name = 'tweezers',      label = "Pinça",      icon = "fas fa-tools",             price = 10 },
+                    { name = 'burncream',     label = "Aloe Vera",     icon = "fas fa-fire-extinguisher", price = 10 },
+                    { name = 'suturekit',     label = "Kit de Suturação",     icon = "fas fa-scissors",          price = 10 },
+                    { name = 'icepack',       label = "Pacote de Gelo",      icon = "fas fa-snowflake",         price = 10 },
                 }
 
             },
             ["ems_shop_2"] = {
                 job = false,
-                label = "Pharmacy",
+                label = "Farmácia",
                 grade = 0, -- works only if job true
-                pos = vector3(303.84, -597.6, 43.28),
+                pos = vec3(-435.91, -325.84, 34.91),
                 blip = {
                     enable = true,
-                    name = 'Pharmacy',
+                    name = 'Farmácia',
                     type = 61,
                     scale = 0.7,
                     color = 2,
-                    pos = vector3(303.84, -597.6, 43.28),
+                    pos = vec3(-435.91, -325.84, 34.91),
                 },
                 items = {
-                    { name = 'bandage', label = "Bandage", icon = "fas fa-bandage", price = 10 },
+                    { name = 'bandage', label = "Bandagem", icon = "fas fa-bandage", price = 10 },
                 }
             },
         },
         garage = {
-            ['ems_garage_1'] = {
-                pedPos = vector4(291.2237, -614.9087, 42.4234, 332.9413),
-                model = 'mp_m_weapexp_01',
-                spawn = vector4(294.28, -608.32, 43.32, 69.6),
-                deposit = vector3(294.28, -608.32, 43.32),
-                driverSpawnCoords = vector3(297.56, -600.52, 43.32),
+            -- ['ems_garage_1'] = {
+            --     pedPos = vector4(291.2237, -614.9087, 42.4234, 332.9413),
+            --     model = 'mp_m_weapexp_01',
+            --     spawn = vector4(294.28, -608.32, 43.32, 69.6),
+            --     deposit = vector3(294.28, -608.32, 43.32),
+            --     driverSpawnCoords = vector3(297.56, -600.52, 43.32),
 
-                vehicles = {
-                    {
-                        label = 'Ambulance',
-                        spawn_code = 'ambulance',
-                        min_grade = 3,
-                        modifications = {} -- es. {color1 = {255, 12, 25}}
-                    },
-                }
-            }
+            --     vehicles = {
+            --         {
+            --             label = 'Ambulance',
+            --             spawn_code = 'ambulance',
+            --             min_grade = 3,
+            --             modifications = {} -- es. {color1 = {255, 12, 25}}
+            --         },
+            --     }
+            -- }
         },
         clothes = {
-            enable = true,
+            enable = false,
             pos = vector4(300.7454, -597.4542, 42.2918, 298.0781),
             model = 'a_f_m_bevhills_01',
             male = {

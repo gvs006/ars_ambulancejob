@@ -51,7 +51,7 @@
 	"remove_from_stretcher": "Remover da Maca",
 	"take_patient_from_vehicle": "Retirar paciente do veículo",
 	"put_patient_in_vehicle": "Colocar paciente no veículo",
-	"medics_online": "há paramédicos online",
+	"medics_online": "Sistema indisponível. Existem paramédicos em serviço!",
 	"wait_time": "Você precisa esperar %s segundos antes de fazer este comando",
 	"medic_coming": "Chamado enviado",
 	"logged_dead": "Você saiu do jogo como morto",
