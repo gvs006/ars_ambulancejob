@@ -30,16 +30,16 @@ Config.baseInjuryReward = 150
 Config.reviveReward = 700
 
 Config.paramedicTreatmentPrice = 4000
-Config.allowAlways = true             -- false if you want it to work only when there are only medics online
+Config.allowAlways = false             -- false if you want it to work only when there are only medics online
 
 Config.ambulanceStretchers = 2        -- how many stretchers should an ambulance have
 Config.consumeItemPerUse = 10         -- every time you use an item it gets used by 10%
 
 Config.timeToWaitForCommand = 2       -- when player dies he needs to wait 2 minutes to do the ambulance command
-Config.npcReviveCommand = "ambulance" -- this will work only when there are no medics online
+Config.npcReviveCommand = "socorro" -- this will work only when there are no medics online
 
 Config.usePedToDepositVehicle = false -- if false the vehicle will instantly despawns
-Config.extraEffects = true            -- false >> disables the screen shake and the black and white screen
+Config.extraEffects = false            -- false >> disables the screen shake and the black and white screen
 
 Config.emsVehicles = {                -- vehicles that have access to the props (cones and ecc..)
 	ambulance = true,

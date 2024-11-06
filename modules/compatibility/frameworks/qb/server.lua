@@ -19,7 +19,7 @@ function Framework.hasJob(target, jobs)
 
     if type(jobs) == "table" then
         for index, jobName in pairs(jobs) do
-            if xPlayer.PlayerData.job.name == jobName then return true end
+            if xPlayer.PlayerData.job.name == jobName and xPlayer.PlayerData.job.onduty then return true end
         end
     else
         return xPlayer.PlayerData.job.name == jobs

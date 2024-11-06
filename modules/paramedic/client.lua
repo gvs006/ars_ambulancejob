@@ -39,7 +39,7 @@ local function openParamedicMenu(ped, hospital)
                     for i = 1, #hospital.respawn do
                         local _bed = hospital.respawn[i]
                         local isBedOccupied = utils.isBedOccupied(_bed.bedPoint)
-                        if not isBedOccupied then
+                        if not isBedOccupied and not _bed.isDeadRespawn then
                             bed = _bed
                             break
                         end
@@ -60,8 +60,10 @@ local function openParamedicMenu(ped, hospital)
                     SetEntityHealth(playerPed, GetEntityMaxHealth(playerPed))
                     player.injuries = {}
 
-                    SetEntityCoords(ped, hospital.paramedic.pos.xyz)
-                    SetEntityHeading(ped, hospital.paramedic.pos.w)
+                    for i = 1, #hospital.paramedic.pos do
+                        SetEntityCoords(ped, hospital.paramedic.pos[i].xyz)
+                        SetEntityHeading(ped, hospital.paramedic.pos[i].w)
+                    end
 
                     DoScreenFadeOut(500)
                     while not IsScreenFadedOut() do Wait(1) end
@@ -73,7 +75,10 @@ local function openParamedicMenu(ped, hospital)
 
                     utils.showNotification(locale("treated_by_paramedic"))
                     ClearPedTasks(ped)
-                    ClearAreaOfObjects(hospital.paramedic.pos.xyz, 2.0, 0)
+
+                    for i = 1, #hospital.paramedic.pos do
+                        ClearAreaOfObjects(hospital.paramedic.pos[i].xyz, 2.0, 0)
+                    end
                 end,
             }
         }
@@ -122,31 +127,33 @@ local allowAlwaysTreatment = lib.load("config").allowAlways
 
 function initParamedic()
     for index, hospital in pairs(hospitals) do
-        local ped = utils.createPed(hospital.paramedic.model, hospital.paramedic.pos)
+        for i = 1, #hospital.paramedic.pos do
+            local ped = utils.createPed(hospital.paramedic.model, hospital.paramedic.pos[i])
 
-        FreezeEntityPosition(ped, true)
-        SetEntityInvincible(ped, true)
-        SetBlockingOfNonTemporaryEvents(ped, true)
+            FreezeEntityPosition(ped, true)
+            SetEntityInvincible(ped, true)
+            SetBlockingOfNonTemporaryEvents(ped, true)
 
-        Target.addLocalEntity(ped, {
-            {
-                label = locale('paramedic_interact_label'),
-                icon = 'fa-solid fa-ambulance',
-                groups = false,
-                fn = function()
-                    if not allowAlwaysTreatment then
-                        local medicsOnline = lib.callback.await('ars_ambulancejob:getMedicsOniline', false)
-                        if medicsOnline <= 0 then
-                            openParamedicMenu(ped, hospital)
+            Target.addLocalEntity(ped, {
+                {
+                    label = locale('paramedic_interact_label'),
+                    icon = 'fa-solid fa-ambulance',
+                    groups = false,
+                    fn = function()
+                        if not allowAlwaysTreatment then
+                            local medicsOnline = lib.callback.await('ars_ambulancejob:getMedicsOniline', false)
+                            if medicsOnline <= 0 then
+                                openParamedicMenu(ped, hospital)
+                            else
+                                utils.showNotification(locale("medics_online"))
+                            end
                         else
-                            utils.showNotification(locale("medics_online"))
+                            openParamedicMenu(ped, hospital)
                         end
-                    else
-                        openParamedicMenu(ped, hospital)
                     end
-                end
-            }
-        })
+                }
+            })
+        end
     end
 end
 

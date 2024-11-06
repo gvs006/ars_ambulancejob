@@ -20,13 +20,13 @@ local function createShops()
                     if pharmacy.job then
                         if Framework.hasJob(emsJobs) and Framework.getPlayerJobGrade() >= pharmacy.grade then
                             self.access = true
-                            lib.showTextUI(locale('control_to_open_shop'))
+                            lib.showTextUI(locale('control_to_open_shop'), { icon = 'fa-solid fa-store' })
                         else
                             self.access = false
                         end
                     else
                         self.access = true
-                        lib.showTextUI(locale('control_to_open_shop'))
+                        lib.showTextUI(locale('control_to_open_shop'), { icon = 'fa-solid fa-store' })
                     end
                 end,
                 onExit = function()
@@ -34,7 +34,7 @@ local function createShops()
                 end,
                 nearby = function(self)
                     if self.access then
-                        DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 1.0, 1.0, 1.0, 200, 20, 20, 50, false, true, 2, false, nil, nil, false)
+                        DrawMarker(2, self.coords.x, self.coords.y, self.coords.z, 0.0, 0.0, 0.0, 0.0, 180.0, 0.0, 0.3, 0.3, 0.3, 200, 20, 20, 50, false, true, 2, false, nil, nil, false)
 
                         if self.currentDistance < 1 and IsControlJustReleased(0, 38) then
                             if ox_inventory then

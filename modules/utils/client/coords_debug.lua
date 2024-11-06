@@ -8,10 +8,12 @@ for name, hospital in pairs(hospitals) do
     local inZone = false
 
     -- Paramedic
-    inZone = utils.inHospitalZone(hospital.paramedic.pos, zonePos, zoneSize)
-    if not inZone then
-        utils.debug(("^6HOSPITAL %s"):format(string.upper(name)))
-        utils.debug("^1Paramedic ^0 is not in the hospital zone change coordinates")
+    for i = 1, #hospital.paramedic.pos do
+        inZone = utils.inHospitalZone(hospital.paramedic.pos[i], zonePos, zoneSize)
+        if not inZone then
+            utils.debug(("^6HOSPITAL %s"):format(string.upper(name)))
+            utils.debug("^1Paramedic ^0 is not in the hospital zone change coordinates")
+        end
     end
 
     -- Bossmenu
