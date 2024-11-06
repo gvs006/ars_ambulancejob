@@ -60,6 +60,8 @@ function stopPlayerDeath()
 
     -- LocalPlayer.state:set("injuries", {}, true)
     LocalPlayer.state:set("dead", false, true)
+    LocalPlayer.state:set("isDead", false, true)
+
     player.distressCallTime = nil
     TriggerEvent('qbx_medical:client:playerRevived') --murai
 
@@ -143,6 +145,7 @@ local function initPlayerDeath(logged_dead)
     if player.isDead then return end
 
     player.isDead = true
+    LocalPlayer.state:set("isDead", true, true)
     startCommandTimer()
 
     for _, anim in pairs(animations) do

@@ -64,7 +64,6 @@ return {
                     { name = 'suturekit',     label = "Suturekit",     icon = "fas fa-scissors",          price = 10 },
                     { name = 'icepack',       label = "Ice Pack",      icon = "fas fa-snowflake",         price = 10 },
                 }
-
             },
             ["ems_shop_2"] = {
                 job = false,

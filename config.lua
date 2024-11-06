@@ -6,7 +6,7 @@ Config.useOxInventory = GetResourceState('ox_inventory'):find('start')
 
 Config.clothingScript = 'illenium-appearance' -- 'illenium-appearance', 'fivem-appearance', 'core' or false -- to disable
 Config.emsJobs = { "ambulance", "ems" }
-Config.respawnTime = 0                        -- in minutes
+Config.respawnTime = 5                        -- in minutes
 Config.waitTimeForNewCall = 5                 -- minutes
 
 Config.reviveCommand = "revive"
@@ -15,7 +15,7 @@ Config.healCommand = "heal"
 Config.healAreaCommand = "healarea"
 Config.reviveAllCommand = "reviveall"
 
-Config.adminGroup = "group.admin"
+Config.adminGroup = "admin"
 
 Config.medicBagProp = "xm_prop_x17_bag_med_01a"
 Config.medicBagItem = "medicalbag"
