@@ -48,3 +48,44 @@ end
 
 
 CreateThread(createZones)
+
+
+exports('bandage', function(data, slot)
+    local playerPed = PlayerPedId()
+    local maxHealth = GetEntityMaxHealth(playerPed)
+    local health = GetEntityHealth(playerPed)
+ 
+    if health < maxHealth then
+        exports.ox_inventory:useItem(data, function(data)
+            if data then
+                lib.progressBar({
+                    duration = 5000,
+                    position = 'bottom',
+                    label = 'Fazendo curativo...',
+                    useWhileDead = false,
+                    canCancel = true,
+                    disable = {
+                        car = true,
+                        move = false,
+                        combat = true
+                    },
+                    anim = {
+                        bone = 28422,
+                        dict = 'missheistdockssetup1clipboard@idle_a',
+                        clip = 'idle_a', flag = 49
+                    },
+                    prop = {
+                        model = 'prop_ld_health_pack',
+                        pos = vec3(-0.1, -0.05, -0.1),
+                        rot = vec3(0.0, 0.0, 0.0)
+                    },
+                })
+                SetEntityHealth(playerPed, math.min(maxHealth, math.floor(health + maxHealth / 16)))
+                lib.notify({description = 'Você se sente melhor...'})
+            end
+        end)
+    else
+        lib.notify({type = 'error', description = 'Você não precisa de um curativo agora.'})
+        return false
+    end
+end)

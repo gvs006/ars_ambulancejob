@@ -71,7 +71,7 @@
     "revive_patient_desc": "Reanimar o paciente",
     "patient_not_found": "Não encontrado",
     "distress_call_in_cooldown": "Aguarde antes de enviar outro chamado",
-    "distress_call_form_title": "Ambulância Arius",
+    "distress_call_form_title": "Pedir Socorro",
     "distress_call_form_label": "Mensagem",
     "distress_call_form_desc": "uma mensagem para enviar aos paramédicos online",
     "tablet_call_desc": "mensagem enviada pelo paciente",

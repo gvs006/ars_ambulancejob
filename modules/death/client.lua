@@ -30,7 +30,6 @@ function stopPlayerDeath()
     -- player.injuries = {}
 
     local playerPed = cache.ped or PlayerPedId()
-
     DoScreenFadeOut(800)
 
     while not IsScreenFadedOut() do
@@ -61,11 +60,9 @@ function stopPlayerDeath()
     -- LocalPlayer.state:set("injuries", {}, true)
     LocalPlayer.state:set("dead", false, true)
     LocalPlayer.state:set("isDead", false, true)
+    exports["pma-voice"]:overrideProximityRange(3.0, false)
 
     player.distressCallTime = nil
-    TriggerEvent('qbx_medical:client:playerRevived') --murai
-
-
     Framework.playerSpawned()
     healPlayer()
 end
@@ -95,6 +92,8 @@ local function respawnPlayer()
     if removeItemsOnRespawn then
         TriggerServerEvent("ars_ambulancejob:removeInventory")
     end
+
+    TriggerEvent('ND_Police:uncuffPed')
 
     lib.requestAnimDict("anim@gangops@morgue@table@")
     lib.requestAnimDict("switch@franklin@bed")
@@ -146,6 +145,8 @@ local function initPlayerDeath(logged_dead)
 
     player.isDead = true
     LocalPlayer.state:set("isDead", true, true)
+    exports["pma-voice"]:overrideProximityRange(0.0, false)
+
     startCommandTimer()
 
     for _, anim in pairs(animations) do

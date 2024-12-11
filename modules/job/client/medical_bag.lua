@@ -33,6 +33,7 @@ local function placeMedicalBag()
     Wait(900)
 
     medicBag = CreateObjectNoOffset(medicBagProp, coords.x, coords.y, coords.z, true, false)
+    SetModelAsNoLongerNeeded(medicBagProp)
     PlaceObjectOnGroundProperly(medicBag)
 
     utils.addRemoveItem("remove", "medicalbag", 1)

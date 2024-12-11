@@ -1,6 +1,8 @@
 local hospitals = lib.load("data.hospitals")
 local emsJobs = lib.load("config").emsJobs
+
 for index, hospital in pairs(hospitals) do
+    if not hospital.bossmenu.pos then goto continue end
     Target.addBoxZone(hospital.bossmenu.pos, {
         {
             name = "open_bossmenu" .. index,
@@ -16,4 +18,6 @@ for index, hospital in pairs(hospitals) do
             end
         }
     })
+
+    ::continue::
 end

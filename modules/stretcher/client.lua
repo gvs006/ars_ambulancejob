@@ -183,7 +183,7 @@ local function vehicleInteractions()
             end,
             fn = function(data)
                 local vehicle = type(data) == "number" and data or data.entity
-                if Entity(vehicle).state.stretcher >= ambulanceStretchers then return utils.showNotification(locale("stretcher_limit_reached")) end
+                if Entity(vehicle).state.stretcher > ambulanceStretchers then return utils.showNotification(locale("stretcher_limit_reached")) end
 
                 Entity(vehicle).state.stretcher += 1
 

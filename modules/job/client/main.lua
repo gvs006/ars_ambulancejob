@@ -177,6 +177,7 @@ function openDistressCalls()
     local tablet = CreateObject(model, playerCoords.x, playerCoords.y, playerCoords.z + 0.2, true, true, true)
     AttachEntityToEntity(tablet, playerPed, GetPedBoneIndex(playerPed, 28422), 0.0, -0.03, 0.0, 20.0, -90.0, 0.0, true,
         true, false, true, 1, true)
+    SetModelAsNoLongerNeeded(model)
 
     for i = 1, #distressCalls do
         local call = distressCalls[i]
