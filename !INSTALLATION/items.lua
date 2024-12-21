@@ -1,61 +1,60 @@
-['medicalbag'] = {
-    label = 'Medical Bag',
+["medicalbag"] = {
+    label = "Bolsa de Primeiros Socorros",
     weight = 220,
     stack = true,
-    description = "A comprehensive medical kit for treating injuries and ailments.",
+    description = "Um kit médico abrangente para tratar ferimentos e doenças.",
 },
-
-['bandage'] = {
-    label = 'Bandage',
+["bandage"] = {
+    label = "Bandagem",
+    weight = 100,
+    consume = 1,
+    stack = true,
+    description = "Uma simples bandagem usada para cobrir e proteger ferimentos.",
+    client = {
+        export = "ars_ambulancejob.bandage",
+    },
+},
+["defibrillator"] = {
+    label = "Desfibrilador",
     weight = 100,
     stack = true,
-    description = "A simple bandage used to cover and protect wounds.",
+    description = "Usado para reviver pacientes.",
 },
-
-['defibrillator'] = {
-    label = 'Defibrillator',
+["tweezers"] = {
+    label = "Pinças",
     weight = 100,
     stack = true,
-    description = "Used for reviving patients.",
+    description = "Pinças de precisão para remover objetos estranhos, como balas, de ferimentos com segurança.",
 },
-
-['tweezers'] = {
-    label = 'Tweezers',
+["burncream"] = {
+    label = "Creme para Queimaduras",
     weight = 100,
     stack = true,
-    description = "Precision tweezers for safely removing foreign objects, such as bullets, from wounds.",
+    description = "Creme especializado para tratar e aliviar queimaduras leves e irritações na pele.",
 },
-
-['burncream'] = {
-    label = 'Burn Cream',
+["suturekit"] = {
+    label = "Kit de Sutura",
     weight = 100,
     stack = true,
-    description = "Specialized cream for treating and soothing minor burns and skin irritations.",
+    description = "Um kit contendo ferramentas cirúrgicas e materiais para suturar e fechar ferimentos.",
 },
-
-['suturekit'] = {
-    label = 'Suture Kit',
-    weight = 100,
-    stack = true,
-    description = "A kit containing surgical tools and materials for stitching and closing wounds.",
-},
-
-['icepack'] = {
-    label = 'Ice Pack',
+["icepack"] = {
+    label = "Pacote de Gelo",
     weight = 200,
     stack = true,
-    description = "An ice pack used to reduce swelling and provide relief from pain and inflammation.",
+    description = "Um pacote de gelo usado para reduzir o inchaço e fornecer alívio da dor e inflamação.",
 },
-
-['stretcher'] = {
-    label = 'Stretcher',
+["stretcher"] = {
+    label = "Maca",
     weight = 200,
     stack = true,
-    description = "A stretcher used to moving patients who require medical care.",
+    description = "Um maca usada para mover pacientes que precisam de cuidados médicos.",
 },
-
-['emstablet'] = {
-    label = 'Ems tablet',
+["emstablet"] = {
+    label = "Tablet de EMS",
     weight = 200,
     stack = true,
+    client = {
+        export = "ars_ambulancejob.openDistressCalls",
+    },
 },

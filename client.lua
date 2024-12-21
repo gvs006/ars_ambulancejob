@@ -89,3 +89,35 @@ exports('bandage', function(data, slot)
         return false
     end
 end)
+-- Registra o uso do item de adrenalina com o ox_target
+exports.ox_target:addGlobalPlayer({
+    {
+        name = 'use_adrenaline',
+        label = 'Usar Adrenalina',
+        icon = 'fa-solid fa-syringe',
+        distance = 2.5,
+        canInteract = function(entity, distance, coords, name, bone)
+            local targetServerId = GetPlayerServerId(NetworkGetPlayerIndexFromPed(entity))
+            local data = lib.callback.await('ars_ambulancejob:getData', false, targetServerId)
+            local isDead = data.status.isDead
+
+            return isDead
+        end,
+        onSelect = function(data)
+            local targetPlayerId = GetPlayerServerId(NetworkGetEntityOwner(data.entity))
+
+            local success = lib.progressBar({
+                duration = 5000,  
+                label = 'Aplicando adrenalina...',
+                canCancel = false,
+                anim = { dict = 'amb@medic@standing@tendtodead@base', clip = 'base' },
+            })
+
+            if success then
+                TriggerServerEvent('ars_ambulancejob:reviveWithAdrenaline', targetPlayerId)
+            else
+                lib.notify({ title = 'Adrenalina', description = 'Aplicação cancelada ou falhou.', type = 'error' })
+            end
+        end
+    }
+})

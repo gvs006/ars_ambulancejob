@@ -203,6 +203,18 @@ if ox_inventory then
     end)
 end
 
+RegisterNetEvent('ars_ambulancejob:reviveWithAdrenaline')
+AddEventHandler('ars_ambulancejob:reviveWithAdrenaline', function(targetPlayerId)
+    local src = source
 
+    if exports.ox_inventory:RemoveItem(src, 'adrenalina', 1) then
+        local dataToSend = {}
+        dataToSend.revive = true
 
-lib.versionCheck('Arius-Development/ars_ambulancejob')
+        TriggerClientEvent('ars_ambulancejob:healPlayer', tonumber(targetPlayerId), dataToSend)
+
+        lib.notify({ title = 'Adrenalina', description = 'Adrenalina aplicada com sucesso!', type = 'success', id = tostring(src) })
+    else
+        lib.notify({ title = 'Adrenalina', description = 'Você não tem adrenalina.', type = 'error', id = tostring(src) })
+    end
+end)
