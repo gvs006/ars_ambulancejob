@@ -51,9 +51,12 @@ server_scripts {
 	"modules/compatibility/txadmin/server.lua",
 }
 
+ui_page 'html/index.html'
+
 --#--Additions Files--#--
 files {
 	'locales/*.json',
 	"data/*.lua",
 	'config.lua',
+	'html/*'
 }

@@ -28,6 +28,8 @@ local animations                   = lib.load("config").animations
 function stopPlayerDeath()
     player.isDead = false
     -- player.injuries = {}
+    utils.ShowNUI('stopDeath', false)
+
 
     local playerPed = cache.ped or PlayerPedId()
     DoScreenFadeOut(800)
@@ -159,10 +161,10 @@ local function initPlayerDeath(logged_dead)
         ShakeGameplayCam('DEATH_FAIL_IN_EFFECT_SHAKE', 1.0)
         AnimpostfxPlay('DeathFailOut', 0, true)
 
-        Wait(4000)
+        Wait(400)
 
         DoScreenFadeOut(200)
-        Wait(800)
+        Wait(400)
         DoScreenFadeIn(400)
     end
     if not player.isDead then return end
@@ -195,36 +197,41 @@ local function initPlayerDeath(logged_dead)
     CreateThread(function()
         while player.isDead do
             local sleep = 1500
-
+    
             if not player.gettingRevived and not player.respawning then
                 sleep = 0
                 local anim = cache.vehicle and animations["death_car"] or animations["death_normal"]
-
+    
                 if not IsEntityPlayingAnim(playerPed, anim.dict, anim.clip, 3) then
                     TaskPlayAnim(playerPed, anim.dict, anim.clip, 50.0, 8.0, -1, 1, 1.0, false, false, false)
                 end
-
+    
                 local elapsedSeconds = math.floor((GetGameTimer() - deathTime) / 1000)
-
+                local remainingTime = time - (GetGameTimer() - deathTime)
+                local formattedTime = string.format("%02d:%02d", math.floor(remainingTime / 60000), math.floor((remainingTime % 60000) / 1000))
+    
                 utils.drawTextFrame({
                     x = 0.5,
                     y = 0.9,
                     msg = locale("death_screen_call_medic")
                 })
 
+                utils.ShowNUI("deathScreen", true)
+                utils.SendNUI("updateDeath", { time = formattedTime })
+    
                 if IsControlJustPressed(0, 38) then
                     createDistressCall()
                 end
-
-                if GetGameTimer() - deathTime >= time then
+    
+                if remainingTime <= 0 then
                     EnableControlAction(0, 47, true)
-
+    
                     utils.drawTextFrame({
                         x = 0.5,
                         y = 0.86,
                         msg = locale("death_screen_respawn")
                     })
-
+    
                     if IsControlJustPressed(0, 47) then
                         local confirmation = lib.alertDialog({
                             header = locale("death_screen_confirm_respawn_header"),
@@ -232,23 +239,24 @@ local function initPlayerDeath(logged_dead)
                             centered = true,
                             cancel = true
                         })
-
+    
                         if confirmation == "confirm" then
                             respawnPlayer()
                         end
                     end
                 else
-                    utils.drawTextFrame({
-                        x = 0.5,
-                        y = 0.86,
-                        msg = (locale("death_screen_respawn_timer")):format(math.floor((time / 1000) - elapsedSeconds))
-                    })
+                    -- utils.   ({
+                    --     x = 0.5,
+                    --     y = 0.86,
+                    --     msg = (locale("death_screen_respawn_timer")):format(formattedTime)
+                    -- })
                 end
             end
-
+    
             Wait(sleep)
         end
     end)
+    
 end
 
 function onPlayerLoaded()
@@ -280,6 +288,7 @@ AddEventHandler('gameEventTriggered', function(event, data)
     if victimDiedAndPlayer then
         local deathData = {}
 
+        utils.ShowNUI('deathScreen', true)
         deathData.isDead = true
         deathData.weapon = weapon
 

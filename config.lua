@@ -6,7 +6,7 @@ Config.useOxInventory = GetResourceState('ox_inventory'):find('start')
 
 Config.clothingScript = 'illenium-appearance' -- 'illenium-appearance', 'fivem-appearance', 'core' or false -- to disable
 Config.emsJobs = { "ambulance", "ems" }
-Config.respawnTime = 5                        -- in minutes
+Config.respawnTime = 1                        -- in minutes
 Config.waitTimeForNewCall = 5                 -- minutes
 
 Config.reviveCommand = "revive"
@@ -22,7 +22,7 @@ Config.medicBagItem = "medicalbag"
 
 Config.tabletItem = "emstablet"
 
-Config.helpCommand = "911"
+Config.helpCommand = "192"
 Config.removeItemsOnRespawn = true
 Config.keepItemsOnRespawn = { "money", "WEAPON_PISTOL" } -- items that will not be removed when respawed (works only when Config.RemoveItemsOnRespawn is true)
 
@@ -39,7 +39,7 @@ Config.timeToWaitForCommand = 2       -- when player dies he needs to wait 2 min
 Config.npcReviveCommand = "socorro" -- this will work only when there are no medics online
 
 Config.usePedToDepositVehicle = false -- if false the vehicle will instantly despawns
-Config.extraEffects = false            -- false >> disables the screen shake and the black and white screen
+Config.extraEffects = true            -- false >> disables the screen shake and the black and white screen
 
 Config.emsVehicles = {                -- vehicles that have access to the props (cones and ecc..)
 	ambulance = true,

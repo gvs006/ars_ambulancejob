@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
+/* Configurações básicas */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Russo One, sans-serif;
+    overflow: hidden;
+}
+
+/* Estilo para o root */
+#root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.559);
+    color: white;
+    font-size: 2rem;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Timer estilo */
+#timer {
+    margin-top: 1rem;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+/* Classes de animação */
+#root.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#root.hidden {
+    opacity: 0;
+    transform: scale(0.9);
+    pointer-events: none;
+}

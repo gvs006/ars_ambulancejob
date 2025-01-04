@@ -20,6 +20,16 @@ local TriggerServerEvent = TriggerServerEvent
 utils = {}
 peds = {}
 
+-- Utility Functions
+function utils.ShowNUI(action, shouldShow, focus)
+    SetNuiFocus(focus, focus)
+    SendNUIMessage({ action = action, data = shouldShow })
+end
+
+function utils.SendNUI(action, data)
+    SendNUIMessage({ action = action, data = data })
+end
+
 function utils.showNotification(msg, type)
     lib.notify({
         -- title = 'Ars Ambulancejob',
@@ -147,6 +157,7 @@ function utils.inHospitalZone(playerPos, boxPos, boxSize)
 end
 
 function utils.drawTextFrame(data)
+
     SetTextFont(4)
     SetTextScale(0.0, 0.5)
     SetTextColour(255, 255, 255, 255)
