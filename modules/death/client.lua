@@ -75,6 +75,14 @@ function healPlayer()
     Framework.healStatus()
 end
 
+-- Compatibilidade com qb
+RegisterNetEvent("hospital:client:Revive", function()
+    local data = {
+        revive = true,
+    }
+    TriggerEvent("ars_ambulancejob:healPlayer", data)
+end)
+
 RegisterNetEvent("ars_ambulancejob:healPlayer", function(data)
     if data.revive then
         stopPlayerDeath()
