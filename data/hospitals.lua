@@ -239,7 +239,7 @@ return {
         },
         respawn = {
             {
-                bedPoint = vec4(1126.44, -1562.09, 35.9, 169.43),
+                bedPoint = vec4(1126.44, -1562.09, 35.9, 185.8),
                 spawnPoint = vec4(1125.4, -1562.23, 34.97, 354.0),
                 isDeadRespawn = true, -- local pra spawnar quando morre
             },

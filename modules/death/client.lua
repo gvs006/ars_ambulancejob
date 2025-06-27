@@ -226,11 +226,11 @@ local function initPlayerDeath(logged_dead)
                 if remainingTime <= 0 then
                     EnableControlAction(0, 47, true)
     
-                    utils.drawTextFrame({
-                        x = 0.5,
-                        y = 0.86,
-                        msg = locale("death_screen_respawn")
-                    })
+                    -- utils.drawTextFrame({
+                    --     x = 0.5,
+                    --     y = 0.86,
+                    --     msg = locale("death_screen_respawn")
+                    -- })
     
                     if IsControlJustPressed(0, 47) then
                         local confirmation = lib.alertDialog({

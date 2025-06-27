@@ -36,7 +36,8 @@ function Framework.playerJob(target)
 end
 
 function Framework.updateStatus(data)
-    local Player = QBCore.Functions.GetPlayer(data.target)
+    local src = source or data.target
+    local Player = QBCore.Functions.GetPlayer(src)
 
     Player.Functions.SetMetaData("isdead", data.status)
 

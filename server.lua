@@ -207,7 +207,7 @@ RegisterNetEvent('ars_ambulancejob:reviveWithAdrenaline')
 AddEventHandler('ars_ambulancejob:reviveWithAdrenaline', function(targetPlayerId)
     local src = source
 
-    if exports.ox_inventory:RemoveItem(src, 'adrenalina', 1) then
+    if exports.ox_inventory:RemoveItem(src, 'adrenaline', 1) then
         local dataToSend = {}
         dataToSend.revive = true
 

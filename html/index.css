@@ -36,6 +36,12 @@ body, html {
     font-weight: bold;
 }
 
+/* Texto em vermelho */
+.red-text {
+    color: red;
+    font-weight: bold;
+}
+
 /* Classes de animação */
 #root.visible {
     opacity: 1;

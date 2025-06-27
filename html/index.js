@@ -46,6 +46,8 @@ function showDeathScreen(initialTime) {
 
 }
 
+
+
 function updateDeathScreen(time) {
     const timer = document.getElementById('timer');
 
@@ -54,8 +56,15 @@ function updateDeathScreen(time) {
         return;
     }
 
-    timer.textContent = time;
+    // Verifica se o tempo é "00:00" ou menor que zero
+    if (time === "00:00" || parseInt(time.replace(':', ''), 10) < 0) {
+        timer.innerHTML = '<span>Pressione <span class="red-text">G</span> para ressurgir</span>';
+        return;
+    } else {
+        timer.textContent = time;
+    }
 }
+
 
 function hideDeathScreen() {
     const root = document.getElementById('root');
