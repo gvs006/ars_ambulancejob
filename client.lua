@@ -89,6 +89,7 @@ exports('bandage', function(data, slot)
         return false
     end
 end)
+
 -- Registra o uso do item de adrenalina com o ox_target
 exports.ox_target:addGlobalPlayer({
     {
