@@ -85,6 +85,14 @@ RegisterNetEvent("hospital:client:Revive", function()
     TriggerEvent("ars_ambulancejob:healPlayer", data)
 end)
 
+-- Compatibilidade com qbx
+RegisterNetEvent("qbx_medical:client:playerRevived", function()
+    local data = {
+        revive = true,
+    }
+    TriggerEvent("ars_ambulancejob:healPlayer", data)
+end)
+
 RegisterNetEvent("ars_ambulancejob:healPlayer", function(data)
     if data.revive then
         stopPlayerDeath()
