@@ -8,14 +8,20 @@ local ox_inventory = useOxInventory and exports.ox_inventory
 
 function Framework.removeAccountMoney(target, account, amount)
     local xPlayer = QBCore.Functions.GetPlayer(target)
-    if not xPlayer then return end
+    if not xPlayer then 
+        print("[ARS_AMBULANCEJOB] Erro: Player não encontrado para removeAccountMoney, target: " .. tostring(target))
+        return 
+    end
 
     xPlayer.Functions.RemoveMoney(account, amount)
 end
 
 function Framework.hasJob(target, jobs)
     local xPlayer = QBCore.Functions.GetPlayer(target)
-    if not xPlayer then return end
+    if not xPlayer then 
+        print("[ARS_AMBULANCEJOB] Erro: Player não encontrado para hasJob, target: " .. tostring(target))
+        return false
+    end
 
     if type(jobs) == "table" then
         for index, jobName in pairs(jobs) do
@@ -30,7 +36,10 @@ end
 
 function Framework.playerJob(target)
     local xPlayer = QBCore.Functions.GetPlayer(target)
-    if not xPlayer then return end
+    if not xPlayer then 
+        print("[ARS_AMBULANCEJOB] Erro: Player não encontrado para playerJob, target: " .. tostring(target))
+        return nil
+    end
 
     return xPlayer.PlayerData.job.name
 end
@@ -38,6 +47,12 @@ end
 function Framework.updateStatus(data)
     local src = source or data.target
     local Player = QBCore.Functions.GetPlayer(src)
+    
+    -- Validação para evitar erro quando Player é nil
+    if not Player then
+        print("[ARS_AMBULANCEJOB] Erro: Player não encontrado para source: " .. tostring(src))
+        return
+    end
 
     Player.Functions.SetMetaData("isdead", data.status)
 
@@ -54,7 +69,10 @@ end
 
 function Framework.getPlayerName(target)
     local xPlayer = QBCore.Functions.GetPlayer(target)
-    if not xPlayer then return end
+    if not xPlayer then 
+        print("[ARS_AMBULANCEJOB] Erro: Player não encontrado para getPlayerName, target: " .. tostring(target))
+        return nil
+    end
 
     return xPlayer.PlayerData.charinfo.firstname .. " " .. xPlayer.PlayerData.charinfo.lastname
 end

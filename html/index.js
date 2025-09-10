@@ -11,7 +11,7 @@ window.addEventListener('message', (event) => {
             break;
         case 'updateDeath':
             if (data && data.time || data.time !== true || data.time > 0) {
-                updateDeathScreen(data.time);
+                updateDeathScreen(data.time, data.socorroTimer, data.socorroAvailable);
             } else {
                 console.error('Tempo não recebido ou inválido:', data?.time);
             }
@@ -48,12 +48,25 @@ function showDeathScreen(initialTime) {
 
 
 
-function updateDeathScreen(time) {
+function updateDeathScreen(time, socorroTimer, socorroAvailable) {
     const timer = document.getElementById('timer');
+    const socorroInfo = document.getElementById('socorro-info');
 
-    if (!timer) {
-        console.error('Elemento timer não encontrado no DOM');
+    if (!timer || !socorroInfo) {
+        console.error('Elementos timer ou socorro-info não encontrados no DOM');
         return;
+    }
+
+    // Atualizar informações do /socorro
+    if (socorroAvailable) {
+        socorroInfo.innerHTML = '<span class="green-text">/socorro disponível</span>';
+    } else if (socorroTimer > 0) {
+        const minutes = Math.floor(socorroTimer / 60);
+        const seconds = socorroTimer % 60;
+        const formattedSocorroTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        socorroInfo.innerHTML = `<span class="red-text">/socorro disponível em: <span class="red-text">${formattedSocorroTime}</span></span>`;
+    } else {
+        socorroInfo.innerHTML = '';
     }
 
     // Verifica se o tempo é "00:00" ou menor que zero

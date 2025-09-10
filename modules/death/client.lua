@@ -29,6 +29,9 @@ function stopPlayerDeath()
     player.isDead = false
     -- player.injuries = {}
     utils.ShowNUI('stopDeath', false)
+    
+    -- Mostrar HUD quando a tela de morte desaparecer (respawn)
+    TriggerEvent('ghds_advancedhud:client:showHud')
 
 
     local playerPed = cache.ped or PlayerPedId()
@@ -55,6 +58,9 @@ function stopPlayerDeath()
     SetEveryoneIgnorePlayer(cache.playerId, false)
     ClearPedTasks(playerPed)
     AnimpostfxStopAll()
+
+    -- Mostrar HUD quando a tela de morte desaparecer (respawn)
+    TriggerEvent('ghds_advancedhud:client:showHud')
 
     DoScreenFadeIn(700)
     TaskPlayAnim(playerPed, animations["get_up"].dict, animations["get_up"].clip, 8.0, -8.0, -1, 0, 0, 0, 0, 0)
@@ -160,6 +166,23 @@ local useExtraEffects = lib.load("config").extraEffects
 local respawnTime = lib.load("config").respawnTime
 local function initPlayerDeath(logged_dead)
     if player.isDead then return end
+    
+    -- Validações adicionais para evitar tela de morte em players vivos
+    local playerPed = cache.ped or PlayerPedId()
+    local playerHealth = GetEntityHealth(playerPed)
+    local maxHealth = GetEntityMaxHealth(playerPed)
+    
+    -- Se o player tem saúde suficiente, não deve estar morto
+    if not logged_dead and playerHealth > (maxHealth * 0.1) then
+        print("[ARS_AMBULANCEJOB] Tentativa de ativar tela de morte em player vivo - Health: " .. playerHealth .. "/" .. maxHealth)
+        return
+    end
+    
+    -- Verificar se o player realmente está morto ou ferido fatalmente
+    if not logged_dead and not IsPedDeadOrDying(playerPed, true) and not IsPedFatallyInjured(playerPed) then
+        print("[ARS_AMBULANCEJOB] Player não está morto ou ferido fatalmente - cancelando tela de morte")
+        return
+    end
 
     player.isDead = true
     LocalPlayer.state:set("isDead", true, true)
@@ -233,7 +256,17 @@ local function initPlayerDeath(logged_dead)
                 })
 
                 utils.ShowNUI("deathScreen", true)
-                utils.SendNUI("updateDeath", { time = formattedTime })
+                
+                -- Esconder HUD quando a tela de morte aparecer
+                TriggerEvent('ghds_advancedhud:client:hideHUD')
+                
+                -- Enviar informações do timer do /socorro
+                local socorroTimer = player.timePassedForCommand or 0
+                utils.SendNUI("updateDeath", { 
+                    time = formattedTime,
+                    socorroTimer = socorroTimer,
+                    socorroAvailable = socorroTimer <= 0
+                })
     
                 if IsControlJustPressed(0, 38) then
                     createDistressCall()

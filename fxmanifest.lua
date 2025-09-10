@@ -11,14 +11,18 @@ description 'Advanced ambulance job with intergrated death system'
 
 
 --#--Shared Scripts--#--
-shared_script '@ox_lib/init.lua'
+shared_scripts {
+	'@ox_lib/init.lua',
+	'@qbx_core/modules/lib.lua', -- QBX support
+}
 
 ox_libs {
 	'locale',
 }
 
---#--Cliend-Side Scripts--#--
+--#--Client-Side Scripts--#--
 client_scripts {
+	'@qbx_core/modules/playerdata.lua', -- QBX support
 	"modules/utils/client/utils.lua",
 
 	"client.lua",
